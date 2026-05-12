@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Simulation Scout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Details & Summary Styles for Sidebar */
+        details {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        
+        summary {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.02);
+            user-select: none;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        summary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::before {
+            content: '▶';
+            font-size: 0.7rem;
+            margin-right: 0.75rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .details-content {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .scout-form {
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Dashboard Menu</h2>
+            </div>
+            
+            <form id="scoutForm" class="scout-form">
+                
+                <details open>
+                    <summary>Basic Info</summary>
+                    <div class="details-content">
+                        <div class="form-group">
+                            <label for="Position">Position</label>
+                            <select id="Position" name="Position">
+                                <option value="">All Positions</option>
+                                <option value="G">Goalkeeper (GK)</option>
+                                <option value="D">Defender (DF)</option>
+                                <option value="M">Midfielder (MF)</option>
+                                <option value="F">Forward (FW)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="MinAppearances">Min Appearances</label>
+                            <input type="number" id="MinAppearances" name="MinAppearances" placeholder="e.g., 10" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinMinutesPlayed">Min Minutes Played</label>
+                            <input type="number" id="MinMinutesPlayed" name="MinMinutesPlayed" placeholder="e.g., 900" min="0">
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Attacking</summary>
+                    <div class="details-content">
+                        <div class="form-group">
+                            <label for="MinGoals">Min Goals</label>
+                            <input type="number" id="MinGoals" name="MinGoals" placeholder="e.g., 5" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinXg">Min xG (Expected Goals)</label>
+                            <input type="number" step="0.1" id="MinXg" name="MinXg" placeholder="e.g., 3.5" min="0">
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Passing & Creativity</summary>
+                    <div class="details-content">
+                        <div class="form-group">
+                            <label for="MinAssists">Min Assists</label>
+                            <input type="number" id="MinAssists" name="MinAssists" placeholder="e.g., 5" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinKeyPasses">Min Key Passes</label>
+                            <input type="number" id="MinKeyPasses" name="MinKeyPasses" placeholder="e.g., 20" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinAccuratePasses">Min Accurate Passes</label>
+                            <input type="number" id="MinAccuratePasses" name="MinAccuratePasses" placeholder="e.g., 200" min="0">
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Defending & Duels</summary>
+                    <div class="details-content">
+                        <div class="form-group">
+                            <label for="MinTackles">Min Tackles</label>
+                            <input type="number" id="MinTackles" name="MinTackles" placeholder="e.g., 15" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinInterceptions">Min Interceptions</label>
+                            <input type="number" id="MinInterceptions" name="MinInterceptions" placeholder="e.g., 10" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinClearances">Min Clearances</label>
+                            <input type="number" id="MinClearances" name="MinClearances" placeholder="e.g., 20" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinAerialsWon">Min Aerials Won</label>
+                            <input type="number" id="MinAerialsWon" name="MinAerialsWon" placeholder="e.g., 10" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinDuelsWon">Min Duels Won</label>
+                            <input type="number" id="MinDuelsWon" name="MinDuelsWon" placeholder="e.g., 25" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="MinSaves">Min Saves (Goalkeepers)</label>
+                            <input type="number" id="MinSaves" name="MinSaves" placeholder="e.g., 30" min="0">
+                        </div>
+                    </div>
+                </details>
+                
+                <button type="submit" id="scoutSubmitBtn" class="btn-primary" style="margin-top: 1rem;">
+                    <span class="btn-text">Scout Players</span>
+                    <span class="btn-spinner hidden">↻</span>
+                </button>
+            </form>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Football Analytics</h1>
+                <div class="tabs">
+                    <button class="tab-btn active" data-target="tab-ratings">Top 20 Ratings</button>
+                    <button class="tab-btn" data-target="tab-teams">Team Stats</button>
+                    <button class="tab-btn" data-target="tab-scout">Scouting Results</button>
+                    <button class="tab-btn" data-target="tab-compare">Compare Players</button>
+                    <button class="tab-btn" data-target="tab-simulation">Match Simulation</button>
+                    <button class="tab-btn" data-target="tab-management">Team Management</button>
+                </div>
+            </header>
+
+            <div class="tab-content">
+                <!-- Top 20 Ratings Tab -->
+                <div id="tab-ratings" class="tab-pane active">
+                    <div class="table-container">
+                        <table id="ratings-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>Team</th>
+                                    <th>Rating (1-10)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ratings-tbody">
+                                <!-- Data will be injected here via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Team Stats Tab -->
+                <div id="tab-teams" class="tab-pane">
+                    <div class="table-container">
+                        <table id="teams-table" class="sortable-table">
+                            <thead>
+                                <tr>
+                                    <th data-sort="team">Team ↕</th>
+                                    <th data-sort="totalGoals">Total Goals ↕</th>
+                                    <th data-sort="totalAssists">Total Assists ↕</th>
+                                    <th data-sort="avgXg">Avg xG ↕</th>
+                                    <th data-sort="playerCount">Players ↕</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teams-tbody">
+                                <!-- Data will be injected here via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Scouting Results Tab -->
+                <div id="tab-scout" class="tab-pane" style="scroll-behavior: smooth;">
+                    <div id="scout-results-wrapper">
+                        <div id="scout-results" class="cards-grid">
+                            <div class="empty-state">
+                                <p>Scout results will be listed here.</p>
+                                <p class="sub-text">Use the form on the left to start searching.</p>
+                            </div>
+                        </div>
+                        <!-- Pagination -->
+                        <div id="pagination-controls" class="pagination hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Compare Players Tab -->
+                <div id="tab-compare" class="tab-pane">
+                    <div class="compare-container">
+                        <datalist id="player-names-list"></datalist>
+                        
+                        <div class="compare-controls">
+                            <div class="form-group">
+                                <label for="comparePlayer1">Player 1</label>
+                                <input type="text" id="comparePlayer1" list="player-names-list" placeholder="Search first player..." autocomplete="off">
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end; justify-content: center;">
+                                <span style="font-size: 1.5rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">VS</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="comparePlayer2">Player 2</label>
+                                <input type="text" id="comparePlayer2" list="player-names-list" placeholder="Search second player..." autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin: 2rem 0;">
+                            <button id="runCompareBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;">
+                                <span class="btn-text">Compare</span>
+                                <span class="btn-spinner hidden">↻</span>
+                            </button>
+                        </div>
+
+                        <div id="compareResults" class="compare-results hidden">
+                            <div class="compare-layout">
+                                <!-- Chart Side -->
+                                <div class="chart-container">
+                                    <canvas id="compareRadarChart"></canvas>
+                                </div>
+                                
+                                <!-- Table Side -->
+                                <div class="table-container compare-table-wrapper">
+                                    <table id="compare-table">
+                                        <thead>
+                                            <tr>
+                                                <th id="th-player1" style="width: 33%; text-align: center; font-size: 1.1rem;">Player 1</th>
+                                                <th style="width: 34%; text-align: center; color: var(--text-muted);">Stat</th>
+                                                <th id="th-player2" style="width: 33%; text-align: center; font-size: 1.1rem;">Player 2</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="compare-tbody">
+                                            <!-- Stats injected here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Simulation Tab -->
+                <div id="tab-simulation" class="tab-pane">
+                    <div class="simulation-container">
+                        
+                        <!-- Team Selection Area -->
+                        <div class="teams-grid">
+                            <!-- Home Team -->
+                            <div class="team-section">
+                                <h3>Home Team</h3>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <select id="homeTeamSelect" class="team-select">
+                                        <option value="">Select Home Team</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="squad-builder">
+                                    <div class="available-players">
+                                        <h4 style="display: flex; justify-content: space-between; align-items: center;">
+                                            Available
+                                        </h4>
+                                        <input type="text" id="homePlayerSearch" placeholder="Search player..." class="player-search-input hidden">
+                                        <div id="homeAvailablePlayers" class="player-list-checkboxes">
+                                            <!-- Checkboxes injected here -->
+                                            <p class="sub-text">Select a team first</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="selected-squad">
+                                        <h4 id="homeSquadHeader">Home Squad (<span id="homeSelectedCount">0</span>/11)</h4>
+                                        <ul id="homeSelectedList" class="selected-list">
+                                            <!-- Selected li injected here -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Away Team -->
+                            <div class="team-section">
+                                <h3>Away Team</h3>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <select id="awayTeamSelect" class="team-select">
+                                        <option value="">Select Away Team</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="squad-builder">
+                                    <div class="available-players">
+                                        <h4 style="display: flex; justify-content: space-between; align-items: center;">
+                                            Available
+                                        </h4>
+                                        <input type="text" id="awayPlayerSearch" placeholder="Search player..." class="player-search-input hidden">
+                                        <div id="awayAvailablePlayers" class="player-list-checkboxes">
+                                            <!-- Checkboxes injected here -->
+                                            <p class="sub-text">Select a team first</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="selected-squad">
+                                        <h4 id="awaySquadHeader">Away Squad (<span id="awaySelectedCount">0</span>/11)</h4>
+                                        <ul id="awaySelectedList" class="selected-list">
+                                            <!-- Selected li injected here -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="run-simulation-wrapper">
+                            <button id="runSimulationBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;">
+                                <span class="btn-text">Run Simulation</span>
+                                <span class="btn-spinner hidden">↻</span>
+                            </button>
+                        </div>
+
+                        <!-- Results Panel -->
+                        <div id="simulationResults" class="simulation-results hidden">
+                            <h3 style="text-align: center; margin-bottom: 1.5rem; font-size: 2rem;">Match Prediction</h3>
+                            
+                            <!-- Expected Goals Overview -->
+                            <div class="sim-card" style="margin-bottom: 1.5rem; display: flex; justify-content: space-around; padding: 2rem;">
+                                <div style="text-align: center;">
+                                    <h5 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1.2rem;">Home xG</h5>
+                                    <div id="resHomeXg" style="font-size: 2.5rem; font-weight: 800; color: var(--primary);">0.00</div>
+                                </div>
+                                <div style="text-align: center; display: flex; align-items: center; font-size: 2rem; color: var(--text-muted); font-weight: 700;">
+                                    VS
+                                </div>
+                                <div style="text-align: center;">
+                                    <h5 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1.2rem;">Away xG</h5>
+                                    <div id="resAwayXg" style="font-size: 2.5rem; font-weight: 800; color: var(--accent);">0.00</div>
+                                </div>
+                            </div>
+
+                            <div class="simulation-dashboard">
+                                
+                                <!-- Score Prediction -->
+                                <div class="sim-card">
+                                    <h4>Most Likely Score</h4>
+                                    <div class="score-prediction-display">
+                                        <div id="resScoreline" class="score-text">0-0</div>
+                                        <div class="score-prob">Probability: <span id="resCorrectScore" style="color: #10b981; font-weight: 700;">0%</span></div>
+                                    </div>
+                                </div>
+
+                                <!-- Match Outcome -->
+                                <div class="sim-card">
+                                    <h4>Match Outcome</h4>
+                                    
+                                    <div class="progress-wrapper">
+                                        <div class="progress-header">
+                                            <span>Home Win</span>
+                                            <span id="resHomeWin">0%</span>
+                                        </div>
+                                        <div class="progress-bar"><div id="barHomeWin" class="progress-fill" style="width: 0%; background-color: var(--primary);"></div></div>
+                                    </div>
+
+                                    <div class="progress-wrapper">
+                                        <div class="progress-header">
+                                            <span>Draw</span>
+                                            <span id="resDraw">0%</span>
+                                        </div>
+                                        <div class="progress-bar"><div id="barDraw" class="progress-fill" style="width: 0%; background-color: var(--text-muted);"></div></div>
+                                    </div>
+
+                                    <div class="progress-wrapper">
+                                        <div class="progress-header">
+                                            <span>Away Win</span>
+                                            <span id="resAwayWin">0%</span>
+                                        </div>
+                                        <div class="progress-bar"><div id="barAwayWin" class="progress-fill" style="width: 0%; background-color: var(--accent);"></div></div>
+                                    </div>
+                                </div>
+
+                                <!-- Goals Market -->
+                                <div class="sim-card">
+                                    <h4>Goals Market</h4>
+                                    
+                                    <div class="progress-wrapper">
+                                        <div class="progress-header">
+                                            <span>Over 1.5 Goals</span>
+                                            <span id="resOver15">0%</span>
+                                        </div>
+                                        <div class="progress-bar"><div id="barOver15" class="progress-fill" style="width: 0%; background-color: #f59e0b;"></div></div>
+                                    </div>
+
+                                    <div class="progress-wrapper">
+                                        <div class="progress-header">
+                                            <span>Over 2.5 Goals</span>
+                                            <span id="resOver25">0%</span>
+                                        </div>
+                                        <div class="progress-bar"><div id="barOver25" class="progress-fill" style="width: 0%; background-color: #f59e0b;"></div></div>
+                                    </div>
+                                    
+                                    <div class="progress-wrapper">
+                                        <div class="progress-header">
+                                            <span>Over 3.5 Goals</span>
+                                            <span id="resOver35">0%</span>
+                                        </div>
+                                        <div class="progress-bar"><div id="barOver35" class="progress-fill" style="width: 0%; background-color: #f59e0b;"></div></div>
+                                    </div>
+                                </div>
+
+                                <!-- Special Bets -->
+                                <div class="sim-card">
+                                    <h4>Special Bets</h4>
+                                    
+                                    <div class="bet-row">
+                                        <span class="bet-label">BTTS (Yes)</span>
+                                        <span id="resBttsYes" class="bet-value">0%</span>
+                                    </div>
+                                    <div class="bet-row">
+                                        <span class="bet-label">Home Clean Sheet</span>
+                                        <span id="resCleanHome" class="bet-value" style="color: var(--primary);">0%</span>
+                                    </div>
+                                    <div class="bet-row">
+                                        <span class="bet-label">Away Clean Sheet</span>
+                                        <span id="resCleanAway" class="bet-value" style="color: var(--accent);">0%</span>
+                                    </div>
+                                    <div class="bet-row">
+                                        <span class="bet-label">1X (Double Chance)</span>
+                                        <span id="resDcHome" class="bet-value">0%</span>
+                                    </div>
+                                    <div class="bet-row">
+                                        <span class="bet-label">X2 (Double Chance)</span>
+                                        <span id="resDcAway" class="bet-value">0%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Corners -->
+                                <div class="sim-card">
+                                    <h4>Corners Prediction</h4>
+                                    
+                                    <div class="progress-wrapper" style="margin-top: 1rem;">
+                                        <div class="progress-header">
+                                            <span>Over 8.5 Corners</span>
+                                            <span id="resCornerOver85">0%</span>
+                                        </div>
+                                        <div class="progress-bar"><div id="barCornerOver85" class="progress-fill" style="width: 0%; background-color: #06b6d4;"></div></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Team Management Tab -->
+                <div id="tab-management" class="tab-pane">
+                    
+                    <!-- Top Area: Team Selection -->
+                    <div class="management-header sim-card" style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">Select Team to Manage</h3>
+                        <div class="form-group" style="max-width: 400px;">
+                            <select id="manageTeamSelect" class="team-select">
+                                <option value="">Select Team</option>
+                            </select>
+                        </div>
+                        <p style="margin-top: 1rem; color: var(--text-muted);">
+                            Total Players: <span id="manageTeamCount" style="color: var(--primary); font-weight: bold;">0</span>
+                        </p>
+                    </div>
+
+                    <div class="management-layout">
+                        <!-- Left/Top Area: Roster Table -->
+                        <div class="roster-section table-container" style="margin-bottom: 2rem;">
+                            <table id="roster-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Position</th>
+                                        <th>Apps</th>
+                                        <th>Goals</th>
+                                        <th>Assists</th>
+                                        <th>xG</th>
+                                        <th style="text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="roster-tbody">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; color: var(--text-muted);">Select a team to view roster.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Right/Bottom Area: Form -->
+                        <div class="player-form-container sim-card">
+                            <h3 id="formTitle" style="margin-bottom: 1.5rem;">Add New Player</h3>
+                            <form id="managePlayerForm" class="grid-form">
+                                <input type="hidden" id="formStatId" name="StatId">
+                                
+                                <div class="form-group">
+                                    <label for="formPlayerName">Player Name *</label>
+                                    <input type="text" id="formPlayerName" name="PlayerName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="formPosition">Position *</label>
+                                    <select id="formPosition" name="Position" required>
+                                        <option value="F">Forward (F)</option>
+                                        <option value="M">Midfielder (M)</option>
+                                        <option value="D">Defender (D)</option>
+                                        <option value="G">Goalkeeper (G)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="formTeamName">Team Name *</label>
+                                    <input type="text" id="formTeamName" name="TeamName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="formAppearances">Appearances</label>
+                                    <input type="number" id="formAppearances" name="Appearances" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formGoals">Goals</label>
+                                    <input type="number" id="formGoals" name="Goals" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formAssists">Assists</label>
+                                    <input type="number" id="formAssists" name="Assists" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formXg">Expected Goals (xG)</label>
+                                    <input type="number" id="formXg" name="Xg" step="0.01" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formKeyPasses">Key Passes</label>
+                                    <input type="number" id="formKeyPasses" name="KeyPasses" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formTackles">Tackles</label>
+                                    <input type="number" id="formTackles" name="Tackles" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formInterceptions">Interceptions</label>
+                                    <input type="number" id="formInterceptions" name="Interceptions" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formAerialsWon">Aerials Won</label>
+                                    <input type="number" id="formAerialsWon" name="AerialsWon" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formMinutesPlayed">Minutes Played</label>
+                                    <input type="number" id="formMinutesPlayed" name="MinutesPlayed" min="0" value="0">
+                                </div>
+                                
+                                <div class="form-actions" style="grid-column: 1 / -1; display: flex; gap: 1rem; margin-top: 1rem;">
+                                    <button type="submit" class="btn-primary" id="manageSaveBtn" style="flex: 1;">
+                                        <span class="btn-text">Save Player</span>
+                                        <span class="btn-spinner hidden">↻</span>
+                                    </button>
+                                    <button type="button" id="manageCancelBtn" class="btn-secondary" style="flex: 1;">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Are you sure?</h3>
+            <p>Bu oyuncuyu takımdan çıkarmak istediğinize emin misiniz?</p>
+            <div class="modal-actions">
+                <button id="modalConfirmBtn" class="btn-danger">Yes, Delete</button>
+                <button id="modalCancelBtn" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
