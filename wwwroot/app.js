@@ -318,135 +318,337 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Squad Builder Search Filtering
-    function filterAvailablePlayers(searchInputId, containerId) {
+    // ------------------------------------------------------------------------
+    // Interactive Pitch Builder Logic
+    // ------------------------------------------------------------------------
+    let pitchSquads = {
+        home: new Array(11).fill(null),
+        away: new Array(11).fill(null)
+    };
+    
+    let currentFormation = '4-3-3';
+
+    const formationConfigs = {
+        '4-3-3': {
+            labels: ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'RM', 'LW', 'ST', 'RW'],
+            positions: [
+                { left: '50%', top: '90%' },
+                { left: '15%', top: '72%' },
+                { left: '35%', top: '75%' },
+                { left: '65%', top: '75%' },
+                { left: '85%', top: '72%' },
+                { left: '20%', top: '48%' },
+                { left: '50%', top: '50%' },
+                { left: '80%', top: '48%' },
+                { left: '20%', top: '20%' },
+                { left: '50%', top: '15%' },
+                { left: '80%', top: '20%' }
+            ]
+        },
+        '4-4-2': {
+            labels: ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+            positions: [
+                { left: '50%', top: '90%' },
+                { left: '15%', top: '72%' },
+                { left: '35%', top: '75%' },
+                { left: '65%', top: '75%' },
+                { left: '85%', top: '72%' },
+                { left: '15%', top: '46%' },
+                { left: '38%', top: '48%' },
+                { left: '62%', top: '48%' },
+                { left: '85%', top: '46%' },
+                { left: '35%', top: '18%' },
+                { left: '65%', top: '18%' }
+            ]
+        },
+        '3-5-2': {
+            labels: ['GK', 'CB', 'CB', 'CB', 'LWB', 'DM', 'DM', 'RWB', 'AM', 'ST', 'ST'],
+            positions: [
+                { left: '50%', top: '90%' },
+                { left: '20%', top: '75%' },
+                { left: '50%', top: '76%' },
+                { left: '80%', top: '75%' },
+                { left: '12%', top: '52%' },
+                { left: '35%', top: '58%' },
+                { left: '65%', top: '58%' },
+                { left: '88%', top: '52%' },
+                { left: '50%', top: '38%' },
+                { left: '35%', top: '16%' },
+                { left: '65%', top: '16%' }
+            ]
+        },
+        '5-3-2': {
+            labels: ['GK', 'LWB', 'CB', 'CB', 'CB', 'RWB', 'CM', 'CM', 'CM', 'ST', 'ST'],
+            positions: [
+                { left: '50%', top: '90%' },
+                { left: '10%', top: '68%' },
+                { left: '28%', top: '75%' },
+                { left: '50%', top: '76%' },
+                { left: '72%', top: '75%' },
+                { left: '90%', top: '68%' },
+                { left: '25%', top: '46%' },
+                { left: '50%', top: '48%' },
+                { left: '75%', top: '46%' },
+                { left: '35%', top: '16%' },
+                { left: '65%', top: '16%' }
+            ]
+        }
+    };
+
+    window.switchSimTab = function(teamPrefix) {
+        document.getElementById('btn-subtab-home').classList.remove('active');
+        document.getElementById('btn-subtab-away').classList.remove('active');
+        document.getElementById('btn-subtab-' + teamPrefix).classList.add('active');
+        
+        document.getElementById('viewport-home').classList.add('hidden');
+        document.getElementById('viewport-away').classList.add('hidden');
+        document.getElementById('viewport-' + teamPrefix).classList.remove('hidden');
+        
+        document.getElementById('btn-subtab-home').style.borderColor = teamPrefix === 'home' ? 'var(--primary)' : 'var(--border)';
+        document.getElementById('btn-subtab-away').style.borderColor = teamPrefix === 'away' ? 'var(--primary)' : 'var(--border)';
+    };
+
+    window.changeFormation = function(formation) {
+        currentFormation = formation;
+        const config = formationConfigs[formation];
+        if (!config) return;
+
+        ['home', 'away'].forEach(teamPrefix => {
+            const pitch = document.getElementById('pitch-' + teamPrefix);
+            if (!pitch) return;
+            pitch.dataset.formation = formation;
+            
+            const slots = pitch.querySelectorAll('.pitch-slot');
+            slots.forEach((slot) => {
+                const id = parseInt(slot.getAttribute('data-slot-id'), 10);
+                if (isNaN(id)) return;
+                
+                slot.style.left = config.positions[id].left;
+                slot.style.top = config.positions[id].top;
+                
+                if (!slot.classList.contains('occupied')) {
+                    const labelSpan = slot.querySelector('.slot-label');
+                    if (labelSpan) {
+                        labelSpan.textContent = config.labels[id];
+                    }
+                }
+            });
+        });
+        
+        updatePitchSlotsDisplay('home');
+        updatePitchSlotsDisplay('away');
+    };
+
+    function filterPitchPlayers(searchInputId, containerId) {
         const query = document.getElementById(searchInputId).value.toLowerCase();
         const container = document.getElementById(containerId);
-        const labels = container.querySelectorAll('label.player-checkbox-item');
+        if (!container) return;
+        const cards = container.querySelectorAll('.draggable-player-card');
         
-        labels.forEach(label => {
-            const text = label.textContent.toLowerCase();
-            if(text.includes(query)) {
-                label.style.display = '';
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            if (text.includes(query)) {
+                card.style.display = '';
             } else {
-                label.style.display = 'none';
+                card.style.display = 'none';
             }
         });
     }
 
-    document.getElementById('homePlayerSearch').addEventListener('input', () => filterAvailablePlayers('homePlayerSearch', 'homeAvailablePlayers'));
-    document.getElementById('awayPlayerSearch').addEventListener('input', () => filterAvailablePlayers('awayPlayerSearch', 'awayAvailablePlayers'));
+    document.getElementById('homePlayerSearch').addEventListener('input', () => filterPitchPlayers('homePlayerSearch', 'homeAvailablePlayersList'));
+    document.getElementById('awayPlayerSearch').addEventListener('input', () => filterPitchPlayers('awayPlayerSearch', 'awayAvailablePlayersList'));
 
-    function renderAvailablePlayers(teamName, containerId, listId, countId, searchInputId, headerId, prefix) {
-        const container = document.getElementById(containerId);
-        const searchInput = document.getElementById(searchInputId);
+    function renderAvailablePlayersForPitch(teamName, teamPrefix) {
+        const container = document.getElementById(teamPrefix + 'AvailablePlayersList');
+        const searchInput = document.getElementById(teamPrefix + 'PlayerSearch');
+        if (!container) return;
         container.innerHTML = '';
-        searchInput.value = '';
+        if (searchInput) searchInput.value = '';
+        
+        pitchSquads[teamPrefix].fill(null);
+        updatePitchSlotsDisplay(teamPrefix);
         
         if (!teamName) {
-            container.innerHTML = '<p class="sub-text">Select a team first</p>';
-            searchInput.classList.add('hidden');
+            container.innerHTML = '<p class="sub-text" style="text-align: center; margin-top: 2rem;">Select a team first</p>';
+            if (searchInput) searchInput.classList.add('hidden');
             return;
         }
-
-        searchInput.classList.remove('hidden');
+        
+        if (searchInput) searchInput.classList.remove('hidden');
         const teamPlayers = allPlayers.filter(p => p.team === teamName).sort((a, b) => a.name.localeCompare(b.name));
         
-        if(teamPlayers.length === 0) {
-            container.innerHTML = '<p class="sub-text">No players found for this team</p>';
+        if (teamPlayers.length === 0) {
+            container.innerHTML = '<p class="sub-text" style="text-align: center; margin-top: 2rem;">No players found for this team</p>';
             return;
         }
 
         teamPlayers.forEach(player => {
-            const label = document.createElement('label');
-            label.className = 'player-checkbox-item';
+            const card = document.createElement('div');
+            card.className = 'draggable-player-card';
+            card.draggable = true;
+            card.dataset.name = player.name;
+            card.dataset.position = player.position || 'N/A';
+            card.id = `dragcard-${teamPrefix}-${player.name.replace(/\s+/g, '-')}`;
             
-            const cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.value = player.name;
-            cb.dataset.position = player.position;
-            cb.dataset.name = player.name;
+            card.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="position-badge" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;">${player.position || 'N/A'}</span>
+                    <span style="font-weight: 600; font-size: 0.9rem;">${player.name}</span>
+                </div>
+                <span style="color: var(--text-muted); font-size: 1.1rem; pointer-events: none;">≡</span>
+            `;
             
-            cb.addEventListener('change', (e) => {
-                const currentChecked = container.querySelectorAll('input[type="checkbox"]:checked');
-                if (e.target.checked && currentChecked.length > 11) {
+            card.addEventListener('dragstart', (e) => {
+                if (card.classList.contains('placed')) {
                     e.preventDefault();
-                    e.target.checked = false;
-                    showToast('Maximum 11 players can be selected', 'error');
                     return;
                 }
-                updateSelectedSquad(containerId, listId, countId, headerId, prefix);
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    name: player.name,
+                    position: player.position,
+                    teamPrefix: teamPrefix
+                }));
+                e.dataTransfer.effectAllowed = 'move';
+                setTimeout(() => card.style.opacity = '0.4', 0);
             });
             
-            label.appendChild(cb);
-            label.appendChild(document.createTextNode(`${player.name} (${player.position || 'N/A'})`));
+            card.addEventListener('dragend', () => {
+                card.style.opacity = '';
+            });
             
-            container.appendChild(label);
+            container.appendChild(card);
         });
-        
-        updateSelectedSquad(containerId, listId, countId, headerId, prefix);
     }
 
-    function updateSelectedSquad(containerId, listId, countId, headerId, prefix) {
-        const container = document.getElementById(containerId);
-        const list = document.getElementById(listId);
-        const countSpan = document.getElementById(countId);
-        const header = document.getElementById(headerId);
-        
-        const checkedBoxes = container.querySelectorAll('input[type="checkbox"]:checked');
-        const count = checkedBoxes.length;
-        
-        list.innerHTML = '';
-        countSpan.textContent = count;
-        
-        if (count === 11) {
-            header.classList.add('squad-ready');
-            header.innerHTML = `${prefix === 'home' ? 'Home' : 'Away'} Squad (Ready ✓)`;
-        } else {
-            header.classList.remove('squad-ready');
-            header.innerHTML = `${prefix === 'home' ? 'Home' : 'Away'} Squad (<span id="${countId}">${count}</span>/11)`;
-        }
-        
-        checkedBoxes.forEach(cb => {
-            const li = document.createElement('li');
-            li.title = "Click to remove";
+    function setupPitchSlots() {
+        const slots = document.querySelectorAll('.pitch-slot');
+        slots.forEach(slot => {
+            const teamPrefix = slot.getAttribute('data-team');
+            const slotId = parseInt(slot.getAttribute('data-slot-id'), 10);
             
-            const infoWrapper = document.createElement('div');
-            infoWrapper.className = 'player-info-wrapper';
-            
-            const posBadge = document.createElement('span');
-            posBadge.className = 'position-badge';
-            posBadge.textContent = cb.dataset.position || 'N/A';
-            
-            const nameSpan = document.createElement('span');
-            nameSpan.textContent = cb.dataset.name;
-            
-            const removeIcon = document.createElement('span');
-            removeIcon.className = 'remove-icon';
-            removeIcon.innerHTML = '✕';
-            
-            infoWrapper.appendChild(posBadge);
-            infoWrapper.appendChild(nameSpan);
-            
-            li.appendChild(infoWrapper);
-            li.appendChild(removeIcon);
-            
-            li.addEventListener('click', () => {
-                cb.checked = false;
-                updateSelectedSquad(containerId, listId, countId, headerId, prefix);
+            slot.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                slot.classList.add('drag-over');
             });
             
-            list.appendChild(li);
+            slot.addEventListener('dragleave', () => {
+                slot.classList.remove('drag-over');
+            });
+            
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                slot.classList.remove('drag-over');
+                
+                try {
+                    const dataStr = e.dataTransfer.getData('text/plain');
+                    if (!dataStr) return;
+                    const data = JSON.parse(dataStr);
+                    
+                    if (data.teamPrefix !== teamPrefix) {
+                        showToast('Cannot mix players between Home and Away teams!', 'error');
+                        return;
+                    }
+
+                    const existingIndex = pitchSquads[teamPrefix].findIndex(p => p && p.name === data.name);
+                    const currentOccupant = pitchSquads[teamPrefix][slotId];
+                    
+                    if (existingIndex !== -1) {
+                        pitchSquads[teamPrefix][existingIndex] = currentOccupant;
+                        pitchSquads[teamPrefix][slotId] = { name: data.name, position: data.position };
+                    } else {
+                        if (currentOccupant) {
+                            setPlayerCardPlacedState(teamPrefix, currentOccupant.name, false);
+                        }
+                        pitchSquads[teamPrefix][slotId] = { name: data.name, position: data.position };
+                        setPlayerCardPlacedState(teamPrefix, data.name, true);
+                    }
+                    
+                    updatePitchSlotsDisplay(teamPrefix);
+                } catch(err) {
+                    console.error('Drop error:', err);
+                }
+            });
+            
+            slot.addEventListener('click', () => {
+                const occupant = pitchSquads[teamPrefix][slotId];
+                if (occupant) {
+                    pitchSquads[teamPrefix][slotId] = null;
+                    setPlayerCardPlacedState(teamPrefix, occupant.name, false);
+                    updatePitchSlotsDisplay(teamPrefix);
+                }
+            });
         });
+    }
+
+    function setPlayerCardPlacedState(teamPrefix, playerName, isPlaced) {
+        if (!playerName) return;
+        const safeName = playerName.replace(/\s+/g, '-');
+        const cardObj = document.getElementById(`dragcard-${teamPrefix}-${safeName}`);
+        if (cardObj) {
+            if (isPlaced) {
+                cardObj.classList.add('placed');
+            } else {
+                cardObj.classList.remove('placed');
+            }
+        }
+    }
+
+    function updatePitchSlotsDisplay(teamPrefix) {
+        const pitch = document.getElementById('pitch-' + teamPrefix);
+        const countSpan = document.getElementById(teamPrefix + 'OccupiedCount');
+        if (!pitch) return;
+        
+        const config = formationConfigs[currentFormation];
+        let occupiedCount = 0;
+        
+        const slots = pitch.querySelectorAll('.pitch-slot');
+        slots.forEach(slot => {
+            const slotId = parseInt(slot.getAttribute('data-slot-id'), 10);
+            const occupant = pitchSquads[teamPrefix][slotId];
+            
+            slot.innerHTML = '';
+            
+            if (occupant) {
+                occupiedCount++;
+                slot.classList.add('occupied');
+                slot.title = "Click to remove";
+                
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'slot-label';
+                labelSpan.textContent = occupant.position || 'N/A';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'player-name-label';
+                nameSpan.textContent = occupant.name;
+                
+                slot.appendChild(labelSpan);
+                slot.appendChild(nameSpan);
+            } else {
+                slot.classList.remove('occupied');
+                slot.title = "Drag player here";
+                
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'slot-label';
+                labelSpan.textContent = config ? config.labels[slotId] : '';
+                slot.appendChild(labelSpan);
+            }
+        });
+        
+        if (countSpan) countSpan.textContent = occupiedCount;
     }
 
     document.getElementById('homeTeamSelect').addEventListener('change', (e) => {
-        renderAvailablePlayers(e.target.value, 'homeAvailablePlayers', 'homeSelectedList', 'homeSelectedCount', 'homePlayerSearch', 'homeSquadHeader', 'home');
+        renderAvailablePlayersForPitch(e.target.value, 'home');
     });
 
     document.getElementById('awayTeamSelect').addEventListener('change', (e) => {
-        renderAvailablePlayers(e.target.value, 'awayAvailablePlayers', 'awaySelectedList', 'awaySelectedCount', 'awayPlayerSearch', 'awaySquadHeader', 'away');
+        renderAvailablePlayersForPitch(e.target.value, 'away');
     });
+
+    // Initialize slots on load
+    setupPitchSlots();
+    window.changeFormation('4-3-3');
 
     document.getElementById('runSimulationBtn').addEventListener('click', async () => {
         const homeTeam = document.getElementById('homeTeamSelect').value;
@@ -457,11 +659,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const homeChecked = Array.from(document.getElementById('homeAvailablePlayers').querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-        const awayChecked = Array.from(document.getElementById('awayAvailablePlayers').querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        const homeChecked = pitchSquads.home.filter(p => p !== null).map(p => p.name);
+        const awayChecked = pitchSquads.away.filter(p => p !== null).map(p => p.name);
 
         if (homeChecked.length !== 11 || awayChecked.length !== 11) {
-            showToast('You must select exactly 11 players for each team.', 'error');
+            showToast('You must fully build your squad (11 players) for both Home and Away teams.', 'error');
             return;
         }
 

@@ -289,68 +289,117 @@
                 <!-- Match Simulation Tab -->
                 <div id="tab-simulation" class="tab-pane">
                     <div class="simulation-container">
-                        
-                        <!-- Team Selection Area -->
-                        <div class="teams-grid">
-                            <!-- Home Team -->
-                            <div class="team-section">
-                                <h3>Home Team</h3>
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <select id="homeTeamSelect" class="team-select">
-                                        <option value="">Select Home Team</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="squad-builder">
-                                    <div class="available-players">
-                                        <h4 style="display: flex; justify-content: space-between; align-items: center;">
-                                            Available
-                                        </h4>
-                                        <input type="text" id="homePlayerSearch" placeholder="Search player..." class="player-search-input hidden">
-                                        <div id="homeAvailablePlayers" class="player-list-checkboxes">
-                                            <!-- Checkboxes injected here -->
-                                            <p class="sub-text">Select a team first</p>
+                                 <!-- Top Controls: Tabs & Formation -->
+                        <div class="simulation-controls-bar sim-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <div class="team-sub-tabs" style="display: flex; gap: 1rem;">
+                                <button type="button" class="btn-secondary active" id="btn-subtab-home" onclick="window.switchSimTab('home')" style="border-color: var(--primary);">Home Team</button>
+                                <button type="button" class="btn-secondary" id="btn-subtab-away" onclick="window.switchSimTab('away')">Away Team</button>
+                            </div>
+                            
+                            <div class="formation-selector-group" style="display: flex; align-items: center; gap: 1rem;">
+                                <label for="formationSelect" style="font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.9rem;">Formation:</label>
+                                <select id="formationSelect" class="formation-select" onchange="window.changeFormation(this.value)" style="padding: 0.5rem 1rem; background-color: #0d0d14; border: 1px solid var(--border); color: var(--text-main); border-radius: 0.375rem; font-weight: bold;">
+                                    <option value="4-3-3">4-3-3</option>
+                                    <option value="4-4-2">4-4-2</option>
+                                    <option value="3-5-2">3-5-2</option>
+                                    <option value="5-3-2">5-3-2</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Pitch Builder Area -->
+                        <div class="pitch-builder-layout">
+                            
+                            <!-- HOME TEAM VIEWPORT -->
+                            <div id="viewport-home" class="team-viewport active">
+                                <div class="team-builder-grid">
+                                    <!-- Sidebar List -->
+                                    <div class="team-builder-sidebar sim-card">
+                                        <div class="sidebar-header-compact">
+                                            <h4 style="margin-bottom: 0.5rem;">Home Selection</h4>
+                                            <select id="homeTeamSelect" class="team-select" style="width: 100%; margin-bottom: 0.75rem;">
+                                                <option value="">Select Home Team</option>
+                                            </select>
+                                            <input type="text" id="homePlayerSearch" placeholder="Filter players..." class="player-search-input hidden" style="margin-bottom: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border); width: 100%; padding: 0.5rem;">
+                                        </div>
+                                        <div id="homeAvailablePlayersList" class="draggable-players-container">
+                                            <p class="sub-text" style="text-align: center; margin-top: 2rem;">Select a team first</p>
                                         </div>
                                     </div>
-                                    
-                                    <div class="selected-squad">
-                                        <h4 id="homeSquadHeader">Home Squad (<span id="homeSelectedCount">0</span>/11)</h4>
-                                        <ul id="homeSelectedList" class="selected-list">
-                                            <!-- Selected li injected here -->
-                                        </ul>
+
+                                    <!-- Interactive Pitch -->
+                                    <div class="pitch-container-wrapper sim-card">
+                                        <div class="pitch-header" style="text-align: center; margin-bottom: 1rem;">
+                                            <h4 style="margin: 0; border: none; padding: 0;">Home Squad (<span id="homeOccupiedCount">0</span>/11)</h4>
+                                        </div>
+                                        <div id="pitch-home" class="football-pitch" data-formation="4-3-3">
+                                            <div class="pitch-lines">
+                                                <div class="pitch-center-circle"></div>
+                                                <div class="pitch-halfway-line"></div>
+                                                <div class="pitch-penalty-box top"></div>
+                                                <div class="pitch-penalty-box bottom"></div>
+                                            </div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="0"><span class="slot-label">GK</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="1"><span class="slot-label">LB</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="2"><span class="slot-label">CB</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="3"><span class="slot-label">CB</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="4"><span class="slot-label">RB</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="5"><span class="slot-label">LM</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="6"><span class="slot-label">CM</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="7"><span class="slot-label">RM</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="8"><span class="slot-label">LW</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="9"><span class="slot-label">ST</span></div>
+                                            <div class="pitch-slot" data-team="home" data-slot-id="10"><span class="slot-label">RW</span></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Away Team -->
-                            <div class="team-section">
-                                <h3>Away Team</h3>
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <select id="awayTeamSelect" class="team-select">
-                                        <option value="">Select Away Team</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="squad-builder">
-                                    <div class="available-players">
-                                        <h4 style="display: flex; justify-content: space-between; align-items: center;">
-                                            Available
-                                        </h4>
-                                        <input type="text" id="awayPlayerSearch" placeholder="Search player..." class="player-search-input hidden">
-                                        <div id="awayAvailablePlayers" class="player-list-checkboxes">
-                                            <!-- Checkboxes injected here -->
-                                            <p class="sub-text">Select a team first</p>
+                            <!-- AWAY TEAM VIEWPORT -->
+                            <div id="viewport-away" class="team-viewport hidden">
+                                <div class="team-builder-grid">
+                                    <!-- Sidebar List -->
+                                    <div class="team-builder-sidebar sim-card">
+                                        <div class="sidebar-header-compact">
+                                            <h4 style="margin-bottom: 0.5rem;">Away Selection</h4>
+                                            <select id="awayTeamSelect" class="team-select" style="width: 100%; margin-bottom: 0.75rem;">
+                                                <option value="">Select Away Team</option>
+                                            </select>
+                                            <input type="text" id="awayPlayerSearch" placeholder="Filter players..." class="player-search-input hidden" style="margin-bottom: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border); width: 100%; padding: 0.5rem;">
+                                        </div>
+                                        <div id="awayAvailablePlayersList" class="draggable-players-container">
+                                            <p class="sub-text" style="text-align: center; margin-top: 2rem;">Select a team first</p>
                                         </div>
                                     </div>
-                                    
-                                    <div class="selected-squad">
-                                        <h4 id="awaySquadHeader">Away Squad (<span id="awaySelectedCount">0</span>/11)</h4>
-                                        <ul id="awaySelectedList" class="selected-list">
-                                            <!-- Selected li injected here -->
-                                        </ul>
+
+                                    <!-- Interactive Pitch -->
+                                    <div class="pitch-container-wrapper sim-card">
+                                        <div class="pitch-header" style="text-align: center; margin-bottom: 1rem;">
+                                            <h4 style="margin: 0; border: none; padding: 0;">Away Squad (<span id="awayOccupiedCount">0</span>/11)</h4>
+                                        </div>
+                                        <div id="pitch-away" class="football-pitch" data-formation="4-3-3">
+                                            <div class="pitch-lines">
+                                                <div class="pitch-center-circle"></div>
+                                                <div class="pitch-halfway-line"></div>
+                                                <div class="pitch-penalty-box top"></div>
+                                                <div class="pitch-penalty-box bottom"></div>
+                                            </div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="0"><span class="slot-label">GK</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="1"><span class="slot-label">LB</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="2"><span class="slot-label">CB</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="3"><span class="slot-label">CB</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="4"><span class="slot-label">RB</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="5"><span class="slot-label">LM</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="6"><span class="slot-label">CM</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="7"><span class="slot-label">RM</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="8"><span class="slot-label">LW</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="9"><span class="slot-label">ST</span></div>
+                                            <div class="pitch-slot" data-team="away" data-slot-id="10"><span class="slot-label">RW</span></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
 
                         <div class="run-simulation-wrapper">
@@ -358,7 +407,7 @@
                                 <span class="btn-text">Run Simulation</span>
                                 <span class="btn-spinner hidden">↻</span>
                             </button>
-                        </div>
+                        </div>            </div>
 
                         <!-- Results Panel -->
                         <div id="simulationResults" class="simulation-results hidden">

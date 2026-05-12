@@ -1014,3 +1014,189 @@ tr:hover td {
     border-color: var(--primary);
     font-weight: bold;
 }
+
+/* ========================================================= */
+/* INTERACTIVE FOOTBALL PITCH SQUAD BUILDER STYLING */
+/* ========================================================= */
+
+.team-builder-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+    .team-builder-grid {
+        grid-template-columns: 320px 1fr;
+        align-items: start;
+    }
+}
+
+.draggable-players-container {
+    max-height: 550px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.draggable-player-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.draggable-player-card:hover:not(.placed) {
+    border-color: var(--primary);
+    background: rgba(0, 255, 135, 0.05);
+    transform: translateX(4px);
+}
+
+.draggable-player-card:active:not(.placed) {
+    cursor: grabbing;
+}
+
+.draggable-player-card.placed {
+    opacity: 0.25;
+    cursor: not-allowed;
+    background: rgba(0, 0, 0, 0.3);
+    border-color: transparent;
+}
+
+.football-pitch {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    max-width: 440px;
+    min-height: 550px;
+    margin: 0 auto;
+    background-color: #1a5c2a;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.pitch-lines {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+}
+
+.pitch-halfway-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.pitch-center-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+}
+
+.pitch-center-circle::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 6px; height: 6px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.pitch-penalty-box {
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    height: 15%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.pitch-penalty-box.top {
+    top: 0;
+    border-top: none;
+}
+
+.pitch-penalty-box.bottom {
+    bottom: 0;
+    border-bottom: none;
+}
+
+.pitch-slot {
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    border: 2px dashed rgba(255, 255, 255, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, border-color 0.2s, transform 0.2s;
+    z-index: 10;
+    user-select: none;
+    padding: 2px;
+}
+
+.pitch-slot:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    border-color: #fff;
+}
+
+.pitch-slot.occupied {
+    background: rgba(0, 255, 135, 0.95);
+    border: 2px solid #fff;
+    box-shadow: 0 0 15px rgba(0, 255, 135, 0.6);
+}
+
+.pitch-slot.drag-over {
+    border-color: var(--primary);
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 20px rgba(0, 255, 135, 0.8);
+    background: rgba(0, 255, 135, 0.3);
+}
+
+.pitch-slot .slot-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    pointer-events: none;
+    line-height: 1;
+}
+
+.pitch-slot .player-name-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #0a0a0f;
+    text-align: center;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1.1;
+    margin-top: 2px;
+}
+

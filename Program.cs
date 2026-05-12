@@ -16,6 +16,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<ISimulationService, SimulationService>();
+builder.Services.AddScoped<IPlayerRatingRepository, PlayerRatingRepository>();
+builder.Services.AddScoped<IPlayerRatingService, PlayerRatingService>();
 
 var app = builder.Build();
 

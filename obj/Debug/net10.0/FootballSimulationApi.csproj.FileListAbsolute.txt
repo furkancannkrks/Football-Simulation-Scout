@@ -121,6 +121,8 @@ C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.
 C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\FootballSimulationApi.pdb
 C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\FootballSimulationApi.genruntimeconfig.cache
 C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\ref\FootballSimulationApi.dll
-C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\compressed\tw7e9zq2wb-{0}-l1tot465nc-l1tot465nc.gz
-C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\compressed\hvkr5q99gc-{0}-s0jbmp6lzf-s0jbmp6lzf.gz
-C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\compressed\9mi1k5x0xv-{0}-ixigy43tm6-ixigy43tm6.gz
+C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\bin\Debug\net10.0\Dapper.dll
+C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\FootballSimulationApi.sourcelink.json
+C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\compressed\tw7e9zq2wb-{0}-5c91dgxt9g-5c91dgxt9g.gz
+C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\compressed\hvkr5q99gc-{0}-rmxii63qzy-rmxii63qzy.gz
+C:\Users\User\.gemini\antigravity\scratch\FootballSimulationApi\obj\Debug\net10.0\compressed\9mi1k5x0xv-{0}-o5sbvc0jp3-o5sbvc0jp3.gz

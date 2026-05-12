@@ -16,7 +16,7 @@ public class PlayerController : ControllerBase
         _playerService = playerService;
     }
 
-    [HttpGet("ratings")]
+    [HttpGet("ratings-legacy")]
     public async Task<ActionResult<IEnumerable<PlayerRatingDto>>> GetTopRatings([FromQuery] int limit = 20)
     {
         var players = await _playerService.GetTopRatingsAsync(limit);
